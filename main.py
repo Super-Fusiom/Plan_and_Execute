@@ -3,7 +3,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
-class App(tkinter.Tk):
+class Main_app(tkinter.Tk):
     def __init__(self):
         super().__init__()
 
@@ -22,5 +22,5 @@ class App(tkinter.Tk):
             
 
 if __name__ == "__main__":
-    main_window = App()
+    main_window = Main_app()
     main_window.mainloop()
