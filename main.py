@@ -3,6 +3,7 @@ import tkinter
 from tkinter import messagebox
 from tkinter import ttk
 
+
 class Main_app(tkinter.Tk):
     def __init__(self):
         super().__init__()
@@ -14,12 +15,12 @@ class Main_app(tkinter.Tk):
         self.label.pack()
 
         self.button = ttk.Button(self, text="Execute")
-        self.button['command'] = self.button_clicked
+        self.button["command"] = self.button_clicked
         self.button.pack()
 
     def button_clicked(self):
         print("It works")
-            
+
 
 if __name__ == "__main__":
     main_window = Main_app()
