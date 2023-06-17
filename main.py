@@ -12,45 +12,73 @@ class Main_app(tk.Tk):
         self.title("Plan and Execute")
         self.geometry("500x500")
 
-        # self.database_print()
+        self.database_print_list()
 
         self.add_button = ttk.Button(self, text="+")
+        self.add_button.grid(row=0, column=0)
         self.add_button["command"] = self.createlst
-        self.add_button.pack()
 
         self.lists_list = [self.add_button]
 
-    def database_add(self):
+    def database_print_items(self):
         con = sqlite3.connect("database.db")
         c = con.cursor()
-        c.execute("INSERT INTO lists_list (list) VALUES (?)", self.namelistent)
-        self.database_print()
+        c.execute("SELECT * from item_list")
 
-    def database_print(self):
-        # Creating list if database doesn't exist
+    def database_add_list(self, namelist):
+        print(namelist)
+        self.createlst_window.destroy()
+        con = sqlite3.connect("database.db")
+        c = con.cursor()
+        c.execute(
+            "INSERT INTO lists_list (lists) VALUES (?)",
+            [
+                namelist,
+            ],
+        )
+        con.commit()
+        con.close()
+        self.database_print_list()
+
+    def database_print_list(self):
+        # Creating list for lists and list of items if database doesn't exist
         self.rows = 1
         con = sqlite3.connect("database.db")
         curser_obj = con.cursor()
-        curser_obj.execute("create table if not exists lists_list (lists)")
+        curser_obj.execute(
+            "CREATE TABLE IF NOT EXISTS lists_list (id INTEGER PRIMARY KEY AUTOINCREMENT, lists TEXT)"
+        )
+        curser_obj.execute(
+            "CREATE TABLE IF NOT EXISTS item_list (id INTEGER PRIMARY KEY, main_id INTEGER, items TEXT, FOREIGN KEY (main_id) REFERENCES lists_list(id))"
+        )
+        curser_obj.execute("SELECT * FROM lists_list")
         lists = curser_obj.fetchall()
+
         # Print List
         for list in lists:
-            lis = ttk.Button(self, text=str(list[1])).grid(row=self.rows)
+            self.liste = ttk.Button(self, text=str(list[1])).grid(
+                column=0, row=self.rows
+            )
+            self.liste["command"] = self.print_items()
             self.rows += 1
         con.commit()
         con.close()
 
     # For adding a list into... well a list
     def createlst(self):
-        createlst_window = tk.Toplevel(self)
-        createlst_window.title("Name List")
-        self.namelisttxt = ttk.Label(createlst_window, text="Name of list").grid(
+        self.createlst_window = tk.Toplevel(self)
+        self.createlst_window.geometry("200x200")
+        self.createlst_window.title("Name List")
+        self.namelisttxt = ttk.Label(self.createlst_window, text="Name of list").grid(
             column=0, row=0
         )
-        self.namelistent = ttk.Entry(createlst_window).grid(column=0, row=1)
+        self.namelistent = ttk.Entry(self.createlst_window, text="")
+        self.namelistent.grid(column=0, row=1)
         self.namelistbtn = ttk.Button(
-            createlst_window, text="Add", command=self.database_add
-        )
+            self.createlst_window,
+            text="Add",
+            command=self.database_add_list(str(self.namelistent.get())),
+        ).grid(column=0, row=2)
 
 
 if __name__ == "__main__":
