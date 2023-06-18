@@ -24,9 +24,10 @@ class Main_app(tk.Tk):
         con = sqlite3.connect("database.db")
         c = con.cursor()
         c.execute("SELECT * from item_list")
+        con.commit()
+        con.close()
 
     def database_add_list(self, namelist):
-        print(namelist)
         self.createlst_window.destroy()
         con = sqlite3.connect("database.db")
         c = con.cursor()
@@ -56,10 +57,11 @@ class Main_app(tk.Tk):
 
         # Print List
         for list in lists:
-            self.liste = ttk.Button(self, text=str(list[1])).grid(
+            self.liste = ttk.Button(self, text=str(list[1]))
+            self.liste.grid(
                 column=0, row=self.rows
             )
-            self.liste["command"] = self.print_items()
+            self.liste["command"] = self.database_print_items
             self.rows += 1
         con.commit()
         con.close()
@@ -77,7 +79,7 @@ class Main_app(tk.Tk):
         self.namelistbtn = ttk.Button(
             self.createlst_window,
             text="Add",
-            command=self.database_add_list(str(self.namelistent.get())),
+            command=lambda: self.database_add_list(str(self.namelistent.get())),
         ).grid(column=0, row=2)
 
 
