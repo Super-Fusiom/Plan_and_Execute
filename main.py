@@ -48,12 +48,12 @@ class Main_app(tk.Tk):
         curser_obj.execute(
             "CREATE TABLE IF NOT EXISTS item_list (list name TEXT, item_name TEXT, completed INTERGER"
         )
-        curser_obj.execute("SELECT * FROM lists_list")
+        curser_obj.execute("SELECT list_name FROM lists_list")
         lists = curser_obj.fetchall()
 
         # Print List
         for list in lists:
-            self.list = ttk.Button(self, text=str(list[1]))
+            self.list = ttk.Button(self, text=str(list[0]))
             self.list.grid(
                 column=0, row=self.rows
             )
