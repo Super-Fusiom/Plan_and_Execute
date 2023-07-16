@@ -20,13 +20,13 @@ class Main_app(tk.Tk):
         self.add_listbtn.grid(row=0, column=0)
         self.add_listbtn["command"] = self.create_list
 
-        self.null_list_selected = ttk.Label(self, text=self.list_selected)
-        self.null_list_selected.grid(column=1, row=0)
+        self.list_title = ttk.Label(self, text=self.list_selected)
+        self.list_title.grid(column=1, row=0)
 
         self.check_selected()
 
     def check_selected(self):
-        self.null_list_selected["text"] = self.list_selected
+        self.list_title["text"] = self.list_selected
         if self.list_selected != "Please Select a list or make a new one":
             self.add_itembtn = ttk.Button(self, text="+")
             self.add_itembtn.grid(row=1, column=1)
@@ -51,6 +51,7 @@ class Main_app(tk.Tk):
             self.list.grid(column=0, row=self.rows)
             self.list["command"] = lambda: self.get_print_item(list_name)
             self.rows += 1
+            print(self.list["command"])
 
     def get_print_item(self, keyname: str):
         def print_item():
@@ -62,7 +63,8 @@ class Main_app(tk.Tk):
 
         self.list_selected = keyname
         self.check_selected()
-        return print_item
+        e = print_item()
+        return e
 
     def get_add_item(self, keyname: str, nameitem):
         self.createitm_window.destroy()
