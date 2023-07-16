@@ -1,4 +1,4 @@
-import sqlite3
+import json
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -9,6 +9,8 @@ class Main_app(tk.Tk):
         # The inits... you get the jist.
         super().__init__()
 
+        self.list_selected = "Please Select a list or make a new one"
+
         self.title("Plan and Execute")
         self.geometry("500x500")
 
@@ -18,74 +20,67 @@ class Main_app(tk.Tk):
         self.add_listbtn.grid(row=0, column=0)
         self.add_listbtn["command"] = self.create_list
 
-        self.add_item = ttk.Button(self, text="+")
-        self.add_item.grid(row=0, column=1)
-        self.add_item["command"] = self.add_item
+        self.null_list_selected = ttk.Label(self, text=self.list_selected)
+        self.null_list_selected.grid(column=1, row=0)
 
+        self.check_selected()
 
+    def check_selected(self):
+        self.null_list_selected["text"] = self.list_selected
+        if self.list_selected != "Please Select a list or make a new one":
+            self.add_itembtn = ttk.Button(self, text="+")
+            self.add_itembtn.grid(row=1, column=1)
+            self.add_itembtn["command"] = self.create_item
 
-    def print_items(self):
-        self.rows = 1
-        con = sqlite3.connect("database.db")
-        c = con.cursor()
-        c.execute("SELECT item_name, complete FROM {} ORDER BY completed, item_list")
-        items = c.fetchall()
-        for item in items:
-            self.item = ttk.Label(self, text=str(item[2]))
-            self.item.grid(column=1, row=self.rows)
-            self.rows += 1
+    def json_read(self):
+        with open("list.json") as f:
+            return json.load(f)
 
-        con.close()
+    def json_write(self, data):
+        with open("list.json", "w") as f:
+            json.dump(data, f, indent=4)
 
     def print_list(self):
         # Creating list for lists and list of items if database doesn't exist
         self.rows = 1
-        con = sqlite3.connect("database.db")
-        curser_obj = con.cursor()
-        curser_obj.execute(
-            "CREATE TABLE IF NOT EXISTS lists_list (list_name TEXT PRIMARY KEY)"
-        )
-        curser_obj.execute(
-            "CREATE TABLE IF NOT EXISTS item_list (list name TEXT, item_name TEXT, completed INTERGER"
-        )
-        curser_obj.execute("SELECT list_name FROM lists_list")
-        lists = curser_obj.fetchall()
+        lists = self.json_read()
 
         # Print List
-        for list in lists:
-            self.list = ttk.Button(self, text=str(list[0]))
-            self.list.grid(
-                column=0, row=self.rows
-            )
-            self.list["command"] = self.print_items
+        for list_name in lists.keys():
+            self.list = ttk.Button(self, text=str(list_name))
+            self.list.grid(column=0, row=self.rows)
+            self.list["command"] = lambda: self.get_print_item(list_name)
             self.rows += 1
-        con.commit()
-        con.close()
 
-    def add_item(self):
-        self.createitem_window.destroy()
-        con = sqlite3.connect('database.db')
-        c = con.cursor()
+    def get_print_item(self, keyname: str):
+        def print_item():
+            self.rows = 2
+            items = self.json_read()
+            for item in items[keyname]:
+                ttk.Label(self, text=str(item)).grid(column=1, row=self.rows)
+                self.rows += 1
 
-        c.execute("INSERT INTO {} VALUES (?, 0)".format())
+        self.list_selected = keyname
+        self.check_selected()
+        return print_item
+
+    def get_add_item(self, keyname: str, nameitem):
+        self.createitm_window.destroy()
+        data = self.json_read()
+        data[keyname].append(nameitem)
+        self.json_write(data)
 
     def add_list(self, namelist):
         self.createlst_window.destroy()
         if namelist:
-            con = sqlite3.connect("database.db")
-            c = con.cursor()
-            c.execute(
-                "INSERT INTO lists_list (list_name) VALUES (?)",
-                [
-                    namelist,
-                ],
-            )
-            c.execute("CREATE TABLE IF NOT EXISTS {} (task_name TEXT, completed INTERGER)".format(namelist))
-            con.commit()
-            con.close()
-        else: messagebox.showerror("error", "You haven't typed anything!")
+            data = self.json_read()
+            data[namelist] = []
+            self.json_write(data)
+            self.list_selected = namelist
+            self.check_selected()
+        else:
+            messagebox.showerror("error", "You haven't typed anything!")
         self.print_list()
-
 
     # For adding a list into... well a list
     def create_list(self):
@@ -104,13 +99,21 @@ class Main_app(tk.Tk):
         ).grid(column=0, row=2)
 
     def create_item(self):
-        self.createitem_window = tk.Toplevel(self)
-        self.createitem_window.geometry("200x200")
-        self.createitem_window.title("Name item")
-        self.createitemlbl = ttk.Label(self.createitem_window, text="Name of item").grid(column=0, row=0)
-        self.createitement = ttk.Entry(self.createitem_window, text="")
-        self.createitement.grid(column=0, row=1)
-        self.createitembtn = ttk.Button(self.createitem_window, text="Add", command=lambda: self.add_item(str(self.createitement.get())))
+        self.createitm_window = tk.Toplevel(self)
+        self.createitm_window.geometry("200x200")
+        self.createitm_window.title("Name Item")
+        self.nameitemtxt = ttk.Label(self.createitm_window, text="Name of Item").grid(
+            column=0, row=0
+        )
+        self.nameitement = ttk.Entry(self.createitm_window, text="")
+        self.nameitement.grid(column=0, row=1)
+        self.nameitembtn = ttk.Button(
+            self.createitm_window,
+            text="Add",
+            command=lambda: self.get_add_item(
+                self.list_selected, str(self.nameitement.get())
+            ),
+        ).grid(column=0, row=2)
 
 
 if __name__ == "__main__":
