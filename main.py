@@ -14,9 +14,9 @@ class Main_app(tk.Tk):
 
         self.print_list()
 
-        self.add_list = ttk.Button(self, text="+")
-        self.add_list.grid(row=0, column=0)
-        self.add_list["command"] = self.create_list
+        self.add_listbtn = ttk.Button(self, text="+")
+        self.add_listbtn.grid(row=0, column=0)
+        self.add_listbtn["command"] = self.create_list
 
         self.add_item = ttk.Button(self, text="+")
         self.add_item.grid(row=0, column=1)
