@@ -50,7 +50,7 @@ class Main_app(tk.Tk):
             list = ttk.Button(
                 self,
                 text=str(list_name),
-                command=lambda: self.get_print_item(list_name),
+                command=lambda list_name=list_name: self.get_print_item(list_name),
             )
             list.grid(column=0, row=self.rows)
             self.rows += 1
