@@ -73,6 +73,7 @@ class Main_app(tk.Tk):
         data = self.json_read()
         data[keyname].append(nameitem)
         self.json_write(data)
+        self.get_print_item(keyname)
 
     def add_list(self, namelist):
         self.createlst_window.destroy()
