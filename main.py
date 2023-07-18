@@ -44,14 +44,16 @@ class Main_app(tk.Tk):
         # Creating list for lists and list of items if database doesn't exist
         self.rows = 1
         lists = self.json_read()
-
+        print(lists.keys())
         # Print List
         for list_name in lists.keys():
-            self.list = ttk.Button(self, text=str(list_name))
-            self.list.grid(column=0, row=self.rows)
-            self.list["command"] = lambda: self.get_print_item(list_name)
+            list = ttk.Button(
+                self,
+                text=str(list_name),
+                command=lambda: self.get_print_item(list_name),
+            )
+            list.grid(column=0, row=self.rows)
             self.rows += 1
-            print(self.list["command"])
 
     def get_print_item(self, keyname: str):
         def print_item():
