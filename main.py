@@ -95,7 +95,7 @@ class Main_app(tk.Tk):
         self.namelisttxt = ttk.Label(self.createlst_window, text="Name of list").grid(
             column=0, row=0
         )
-        self.namelistent = ttk.Entry(self.createlst_window, text="")
+        self.namelistent = ttk.Entry(self.createlst_window)
         self.namelistent.grid(column=0, row=1)
         self.namelistbtn = ttk.Button(
             self.createlst_window,
@@ -110,7 +110,7 @@ class Main_app(tk.Tk):
         self.nameitemtxt = ttk.Label(self.createitm_window, text="Name of Item").grid(
             column=0, row=0
         )
-        self.nameitement = ttk.Entry(self.createitm_window, text="")
+        self.nameitement = ttk.Entry(self.createitm_window)
         self.nameitement.grid(column=0, row=1)
         self.nameitembtn = ttk.Button(
             self.createitm_window,
