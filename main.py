@@ -16,6 +16,9 @@ class Main_app(tk.Tk):
 
         self.print_list()
 
+        self.content_item = ttk.Frame()
+        self.content_item.grid(column=1, row=2)
+
         self.add_listbtn = ttk.Button(self, text="+")
         self.add_listbtn.grid(row=0, column=0)
         self.add_listbtn["command"] = self.create_list
@@ -60,9 +63,14 @@ class Main_app(tk.Tk):
             self.rows = 2
             items = self.json_read()
             for item in items[keyname]:
-                ttk.Label(self, text=str(item)).grid(column=1, row=self.rows)
+                ttk.Label(self.content_item, text=str(item)).grid(
+                    column=1, row=self.rows
+                )
                 self.rows += 1
 
+        self.content_item.grid_forget()
+        self.content_item = ttk.Frame()
+        self.content_item.grid(column=1, row=2, rowspan=5)
         self.list_selected = keyname
         self.check_selected()
         e = print_item()
