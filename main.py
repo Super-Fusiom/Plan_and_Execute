@@ -9,28 +9,27 @@ class Main_app(tk.Tk):
     def __init__(self):
         # The inits... you get the jist.
         super().__init__()
-
         # Adding font and apply to whole application
         pyglet.font.add_file("assets/IBMPlexMono-Medium.ttf")
         ttk.Style(self).configure(".", font=("IBMPlexMono-Medium", 15))
+
+        self.right_style = ttk.Style(self)
+        self.right_style.configure(".TFrame", background="#FEE500")
+        self.right_side = ttk.Frame(style=".TFrame")
+        self.right_side.grid(column=1, row=0, padx=(20, 0))
 
         self.list_selected = "Please Select a list or make a new one"
 
         self.title("Plan and Execute")
         self.geometry("500x500")
 
-        self.right_style = ttk.Style(self)
-        self.right_style.configure("BW.TLabel", background="#fffff")
-        self.right_side = ttk.Frame(style="BW.Frame")
-        self.right_side.grid(column=1, row=0, padx=(20, 0))
-
         self.content_list = ttk.Frame()
-        self.content_list.grid(column=0, row=2)
-
-        self.print_list("main")
+        self.content_list.grid(column=0, row=2, rowspan=1000)
 
         self.content_item = ttk.Frame(self.right_side)
         self.content_item.grid(column=1, row=2)
+
+        self.print_list("main")
 
         self.add_listbtn = ttk.Button(self, text="+")
         self.add_listbtn.grid(row=0, column=0)
@@ -124,29 +123,26 @@ class Main_app(tk.Tk):
             e = print_item()
             return e
         elif window == "delete":
-            if keyname != "Please Select a list or make a new one":
 
-                def print_item():
-                    self.rows = 1
-                    items = self.json_read()
-                    for item in items[keyname]:
-                        ttk.Button(
-                            self.del_items,
-                            text=str(item),
-                            command=lambda item=item: self.remove_object_item(
-                                keyname, item
-                            ),
-                        )
+            def print_item():
+                self.rows = 1
+                items = self.json_read()
+                for item in items[keyname]:
+                    ttk.Button(
+                        self.del_items,
+                        text=str(item),
+                        command=lambda item=item: self.remove_object_item(
+                            keyname, len(items)
+                        ),
+                    ).grid(column=1, row=self.rows)
 
-                        self.rows += 1
+                    self.rows += 1
 
-                self.del_items.grid_forget()
-                self.del_items = ttk.Frame(self.del_object)
-                self.del_items.grid(column=1, row=2, rowspan=5)
-                e = print_item()
-                return e
-            else:
-                messagebox.showerror("error", "Please select a list")
+            self.del_items.grid_forget()
+            self.del_items = ttk.Frame(self.del_object)
+            self.del_items.grid(column=1, row=2, rowspan=5)
+            e = print_item()
+            return e
 
     def get_add_item(self, keyname: str, nameitem):
         if len(nameitem) != 0:
@@ -231,16 +227,19 @@ class Main_app(tk.Tk):
         self.json_write(lists)
         self.content_list.grid_forget()
         self.content_list = ttk.Frame()
-        self.content_list.grid(column=0, row=2)
+        self.content_list.grid(column=0, row=2, rowspan=1000)
         self.print_list("main")
         self.del_object.destroy()
 
-    def remove_object_item(self, list: str, item: str):
-        print(list, item)
+    def remove_object_item(self, list: str, item: int):
         data = self.json_read()
 
         list_item_del = data[list]
-        item_del = list_item_del[item]
+        del list_item_del[item - 1]
+        self.json_write(data)
+
+        self.get_print_item(list, "main")
+        self.del_object.destroy()
 
 
 if __name__ == "__main__":
