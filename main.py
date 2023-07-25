@@ -140,12 +140,12 @@ class Main_app(tk.Tk):
             def print_item():
                 self.rows = 1
                 items = self.json_read()
-                for item in items[keyname]:
+                for index, item in enumerate(items[keyname]):
                     ttk.Button(
                         self.del_items,
                         text=str(item),
-                        command=lambda item=item: self.remove_object_item(
-                            keyname, len(items)
+                        command=lambda index=index: self.remove_object_item(
+                            keyname, index
                         ),
                     ).grid(column=1, row=self.rows)
 
@@ -223,12 +223,12 @@ class Main_app(tk.Tk):
     def delete_object(self):
         if self.list_selected != "Please Select a list or make a new one":
             self.del_object = tk.Toplevel(self)
-            self.del_object.geometry("300x300")
+            self.del_object.geometry("400x400")
             self.del_object.title("Delete object")
 
             ttk.Label(
                 self.del_object, text="Please select which list or item to delete"
-            ).grid(column=0, row=0)
+            ).grid(column=0, row=0, columnspan=2)
 
             self.del_items = ttk.Frame(self.del_object)
             self.del_items.grid(column=3, row=0)
@@ -251,9 +251,10 @@ class Main_app(tk.Tk):
 
     def remove_object_item(self, list: str, item: int):
         data = self.json_read()
-
+        print(item)
         list_item_del = data[list]
-        del list_item_del[item - 1]
+        del list_item_del[item]
+
         self.json_write(data)
 
         self.print_item(list, "main")
