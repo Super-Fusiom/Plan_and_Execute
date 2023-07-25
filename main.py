@@ -23,20 +23,25 @@ class Main_app(tk.Tk):
         self.title("Plan and Execute")
         self.geometry("500x500")
 
-        self.content_list = ttk.Frame()
-        self.content_list.grid(column=0, row=2, rowspan=1000)
-
         self.content_item = ttk.Frame(self.right_side)
-        self.content_item.grid(column=1, row=2)
+        self.content_item.grid(column=1, row=2, rowspan=1000)
+
+        self.utils = ttk.Frame(self)
+        self.utils.grid(column=0, row=0)
+
+        self.content_list = ttk.Frame(self.utils)
+        self.content_list.grid(column=0, row=2, rowspan=1)
 
         self.print_list("main")
 
-        self.add_listbtn = ttk.Button(self, text="+")
-        self.add_listbtn.grid(row=0, column=0)
+        self.add_listbtn = ttk.Button(self.utils, text="+")
+        self.add_listbtn.grid(row=0, column=0, rowspan=1)
         self.add_listbtn["command"] = self.create_list
 
-        self.delete_modebtn = ttk.Button(self, text="DEL", command=self.delete_object)
-        self.delete_modebtn.grid(column=0, row=1, pady=(0, 20))
+        self.delete_modebtn = ttk.Button(
+            self.utils, text="DEL", command=self.delete_object
+        )
+        self.delete_modebtn.grid(column=0, row=1, pady=(0, 20), rowspan=1)
 
         self.list_title = ttk.Label(self.right_side, text=self.list_selected)
         self.list_title.grid(column=1, row=0)
@@ -51,7 +56,7 @@ class Main_app(tk.Tk):
             self.add_itembtn.grid(row=1, column=1)
             self.add_itembtn["command"] = self.create_item
 
-    # Loading JSON file
+    # Loading JSON file and writing JSON file
     def json_read(self):
         with open("list.json", "r") as f:
             return json.load(f)
@@ -60,16 +65,20 @@ class Main_app(tk.Tk):
         with open("list.json", "w") as f:
             json.dump(data, f, indent=4)
 
+    # Prints user list
     def print_list(self, window: str):
         if window == "main":
             self.rows = 2
+            self.content_list.destroy()
+            self.content_list = ttk.Frame(self.utils)
+            self.content_list.grid(column=0, row=2, rowspan=1)
             lists = self.json_read()
             # Print List
             for list_name in lists.keys():
                 list = ttk.Button(
                     self.content_list,
                     text=str(list_name),
-                    command=lambda list_name=list_name: self.get_print_item(
+                    command=lambda list_name=list_name: self.print_item(
                         list_name, "main"
                     ),
                 )
@@ -90,23 +99,27 @@ class Main_app(tk.Tk):
                 list.grid(column=0, row=self.rows)
                 self.rows += 1
 
-    def get_print_item(self, keyname: str, window: str):
+    # The same can go for the items in the list
+    def print_item(self, keyname: str, window: str):
         if window == "main":
-            self.rows = 2
+            self.rows = 0
+            self.content_list.destroy()
+            self.content_list = ttk.Frame(self.utils)
+            self.content_list.grid(column=0, row=2, rowspan=1)
             lists = self.json_read()
             # Print List
             for list_name in lists.keys():
                 list = ttk.Button(
-                    self,
+                    self.content_list,
                     text=str(list_name),
-                    command=lambda list_name=list_name: self.get_print_item(
+                    command=lambda list_name=list_name: self.print_item(
                         list_name, "main"
                     ),
                 )
                 list.grid(column=0, row=self.rows)
                 self.rows += 1
 
-            def print_item():
+            def get_print_item():
                 self.rows = 2
                 items = self.json_read()
                 for item in items[keyname]:
@@ -120,7 +133,7 @@ class Main_app(tk.Tk):
             self.content_item.grid(column=1, row=2, rowspan=5)
             self.list_selected = keyname
             self.check_selected()
-            e = print_item()
+            e = get_print_item()
             return e
         elif window == "delete":
 
@@ -144,15 +157,19 @@ class Main_app(tk.Tk):
             e = print_item()
             return e
 
-    def get_add_item(self, keyname: str, nameitem):
-        if len(nameitem) != 0:
+    # Adding an item and a list
+    def add_item(self, keyname: str, nameitem):
+        checker = self.json_read()
+        checker_list = checker[keyname]
+        keyname_lth = len(checker_list)
+        if len(nameitem) != 0 and keyname_lth <= 6:
             self.createitm_window.destroy()
             data = self.json_read()
             data[keyname].append(nameitem)
             self.json_write(data)
-            self.get_print_item(keyname, "main")
+            self.print_item(keyname, "main")
         else:
-            messagebox.showerror("error", "No item?")
+            messagebox.showerror("error", "Max items reached")
 
     def add_list(self, namelist):
         self.createlst_window.destroy()
@@ -198,7 +215,7 @@ class Main_app(tk.Tk):
         self.nameitembtn = ttk.Button(
             self.createitm_window,
             text="Add",
-            command=lambda: self.get_add_item(
+            command=lambda: self.add_item(
                 self.list_selected, str(self.nameitement.get())
             ),
         ).grid(column=0, row=2)
@@ -217,7 +234,7 @@ class Main_app(tk.Tk):
             self.del_items.grid(column=3, row=0)
 
             self.print_list("delete")
-            self.get_print_item(self.list_selected, "delete")
+            self.print_item(self.list_selected, "delete")
         else:
             messagebox.showerror("error", "Please select a list")
 
@@ -226,9 +243,10 @@ class Main_app(tk.Tk):
         del lists[list]
         self.json_write(lists)
         self.content_list.grid_forget()
-        self.content_list = ttk.Frame()
+        self.content_list = ttk.Frame(self.utils)
         self.content_list.grid(column=0, row=2, rowspan=1000)
         self.print_list("main")
+        self.list_selected = "Please Select a list or make a new one"
         self.del_object.destroy()
 
     def remove_object_item(self, list: str, item: int):
@@ -238,7 +256,7 @@ class Main_app(tk.Tk):
         del list_item_del[item - 1]
         self.json_write(data)
 
-        self.get_print_item(list, "main")
+        self.print_item(list, "main")
         self.del_object.destroy()
 
 
