@@ -10,7 +10,7 @@ class Main_app(tk.Tk):
         # The inits... you get the jist.
         super().__init__()
 
-        # Adding font
+        # Adding font and apply to whole application
         pyglet.font.add_file("assets/IBMPlexMono-Medium.ttf")
         ttk.Style(self).configure(".", font=("IBMPlexMono-Medium", 15))
 
@@ -19,12 +19,17 @@ class Main_app(tk.Tk):
         self.title("Plan and Execute")
         self.geometry("500x500")
 
+        self.right_style = ttk.Style(self)
+        self.right_style.configure("BW.TLabel", background="#fffff")
+        self.right_side = ttk.Frame(style="BW.Frame")
+        self.right_side.grid(column=1, row=0, padx=(20, 0))
+
         self.content_list = ttk.Frame()
         self.content_list.grid(column=0, row=2)
 
         self.print_list("main")
 
-        self.content_item = ttk.Frame()
+        self.content_item = ttk.Frame(self.right_side)
         self.content_item.grid(column=1, row=2)
 
         self.add_listbtn = ttk.Button(self, text="+")
@@ -34,7 +39,7 @@ class Main_app(tk.Tk):
         self.delete_modebtn = ttk.Button(self, text="DEL", command=self.delete_object)
         self.delete_modebtn.grid(column=0, row=1, pady=(0, 20))
 
-        self.list_title = ttk.Label(self, text=self.list_selected)
+        self.list_title = ttk.Label(self.right_side, text=self.list_selected)
         self.list_title.grid(column=1, row=0)
 
         self.check_selected()
@@ -43,7 +48,7 @@ class Main_app(tk.Tk):
     def check_selected(self):
         self.list_title["text"] = self.list_selected
         if self.list_selected != "Please Select a list or make a new one":
-            self.add_itembtn = ttk.Button(self, text="+")
+            self.add_itembtn = ttk.Button(self.right_side, text="+")
             self.add_itembtn.grid(row=1, column=1)
             self.add_itembtn["command"] = self.create_item
 
@@ -79,7 +84,9 @@ class Main_app(tk.Tk):
                 list = ttk.Button(
                     self.del_object,
                     text=str(list_name),
-                    command=lambda list_name=list_name: self.remove_object(list_name),
+                    command=lambda list_name=list_name: self.remove_object_list(
+                        list_name
+                    ),
                 )
                 list.grid(column=0, row=self.rows)
                 self.rows += 1
@@ -110,31 +117,36 @@ class Main_app(tk.Tk):
                     self.rows += 1
 
             self.content_item.grid_forget()
-            self.content_item = ttk.Frame()
+            self.content_item = ttk.Frame(self.right_side)
             self.content_item.grid(column=1, row=2, rowspan=5)
             self.list_selected = keyname
             self.check_selected()
             e = print_item()
             return e
         elif window == "delete":
+            if keyname != "Please Select a list or make a new one":
 
-            def print_item():
-                self.rows = 1
-                items = self.json_read()
-                for item in items[keyname]:
-                    ttk.Button(
-                        self.del_items,
-                        text=str(item),
-                        command=lambda item=item: self.remove_object(item),
-                    )
+                def print_item():
+                    self.rows = 1
+                    items = self.json_read()
+                    for item in items[keyname]:
+                        ttk.Button(
+                            self.del_items,
+                            text=str(item),
+                            command=lambda item=item: self.remove_object_item(
+                                keyname, item
+                            ),
+                        )
 
-                    self.rows += 1
+                        self.rows += 1
 
-            self.del_items.grid_forget()
-            self.del_items = ttk.Frame(self.del_object)
-            self.del_items.grid(column=1, row=2, rowspan=5)
-            e = print_item()
-            return e
+                self.del_items.grid_forget()
+                self.del_items = ttk.Frame(self.del_object)
+                self.del_items.grid(column=1, row=2, rowspan=5)
+                e = print_item()
+                return e
+            else:
+                messagebox.showerror("error", "Please select a list")
 
     def get_add_item(self, keyname: str, nameitem):
         if len(nameitem) != 0:
@@ -196,20 +208,24 @@ class Main_app(tk.Tk):
         ).grid(column=0, row=2)
 
     def delete_object(self):
-        self.del_object = tk.Toplevel(self)
-        self.del_object.geometry("300x300")
-        self.del_object.title("Delete object")
+        if self.list_selected != "Please Select a list or make a new one":
+            self.del_object = tk.Toplevel(self)
+            self.del_object.geometry("300x300")
+            self.del_object.title("Delete object")
 
-        ttk.Label(
-            self.del_object, text="Please select which list or item to delete"
-        ).grid(column=0, row=0)
+            ttk.Label(
+                self.del_object, text="Please select which list or item to delete"
+            ).grid(column=0, row=0)
 
-        self.del_items = ttk.Frame(self.del_object)
-        self.del_items.grid(column=3, row=0)
+            self.del_items = ttk.Frame(self.del_object)
+            self.del_items.grid(column=3, row=0)
 
-        self.print_list("delete")
+            self.print_list("delete")
+            self.get_print_item(self.list_selected, "delete")
+        else:
+            messagebox.showerror("error", "Please select a list")
 
-    def remove_object(self, list: str):
+    def remove_object_list(self, list: str):
         lists = self.json_read()
         del lists[list]
         self.json_write(lists)
@@ -218,6 +234,13 @@ class Main_app(tk.Tk):
         self.content_list.grid(column=0, row=2)
         self.print_list("main")
         self.del_object.destroy()
+
+    def remove_object_item(self, list: str, item: str):
+        print(list, item)
+        data = self.json_read()
+
+        list_item_del = data[list]
+        item_del = list_item_del[item]
 
 
 if __name__ == "__main__":
