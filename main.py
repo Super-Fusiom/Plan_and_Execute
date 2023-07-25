@@ -76,9 +76,7 @@ class Main_app(tk.Tk):
                 list = ttk.Button(
                     self.del_object,
                     text=str(list_name),
-                    command=lambda list_name=list_name: self.get_print_item(
-                        list_name, "delete"
-                    ),
+                    command=lambda list_name=list_name: self.remove_object(list_name),
                 )
                 list.grid(column=0, row=self.rows)
                 self.rows += 1
@@ -122,7 +120,9 @@ class Main_app(tk.Tk):
                 items = self.json_read()
                 for item in items[keyname]:
                     ttk.Button(
-                        self.del_items, text=str(item), command=self.remove_object
+                        self.del_items,
+                        text=str(item),
+                        command=lambda item=item: self.remove_object(item),
                     )
 
                     self.rows += 1
@@ -203,8 +203,12 @@ class Main_app(tk.Tk):
 
         self.print_list("delete")
 
-    def remove_object(self):
-        print(2)
+    def remove_object(self, list: str):
+        lists = self.json_read()
+        del lists[list]
+        self.json_write(lists)
+        self.print_list("main")
+        self.del_object.destroy()
 
 
 if __name__ == "__main__":
