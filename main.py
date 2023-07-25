@@ -19,6 +19,9 @@ class Main_app(tk.Tk):
         self.title("Plan and Execute")
         self.geometry("500x500")
 
+        self.content_list = ttk.Frame()
+        self.content_list.grid(column=0, row=2)
+
         self.print_list("main")
 
         self.content_item = ttk.Frame()
@@ -60,7 +63,7 @@ class Main_app(tk.Tk):
             # Print List
             for list_name in lists.keys():
                 list = ttk.Button(
-                    self,
+                    self.content_list,
                     text=str(list_name),
                     command=lambda list_name=list_name: self.get_print_item(
                         list_name, "main"
@@ -134,11 +137,14 @@ class Main_app(tk.Tk):
             return e
 
     def get_add_item(self, keyname: str, nameitem):
-        self.createitm_window.destroy()
-        data = self.json_read()
-        data[keyname].append(nameitem)
-        self.json_write(data)
-        self.get_print_item(keyname, "main")
+        if len(nameitem) != 0:
+            self.createitm_window.destroy()
+            data = self.json_read()
+            data[keyname].append(nameitem)
+            self.json_write(data)
+            self.get_print_item(keyname, "main")
+        else:
+            messagebox.showerror("error", "No item?")
 
     def add_list(self, namelist):
         self.createlst_window.destroy()
@@ -207,6 +213,9 @@ class Main_app(tk.Tk):
         lists = self.json_read()
         del lists[list]
         self.json_write(lists)
+        self.content_list.grid_forget()
+        self.content_list = ttk.Frame()
+        self.content_list.grid(column=0, row=2)
         self.print_list("main")
         self.del_object.destroy()
 
