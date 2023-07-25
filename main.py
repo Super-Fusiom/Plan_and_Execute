@@ -18,7 +18,7 @@ class Main_app(tk.Tk):
         self.right_side = ttk.Frame(style=".TFrame")
         self.right_side.grid(column=1, row=0, padx=(20, 0))
 
-        self.list_selected = "Please Select a list or make a new one"
+        self.list_selected: str = "Please Select a list or make a new one"
 
         self.title("Plan and Execute")
         self.geometry("500x500")
@@ -61,7 +61,7 @@ class Main_app(tk.Tk):
         with open("list.json", "r") as f:
             return json.load(f)
 
-    def json_write(self, data):
+    def json_write(self, data: dict[str, str]):
         with open("list.json", "w") as f:
             json.dump(data, f, indent=4)
 
@@ -158,7 +158,7 @@ class Main_app(tk.Tk):
             return e
 
     # Adding an item and a list
-    def add_item(self, keyname: str, nameitem):
+    def add_item(self, keyname: str, nameitem: str):
         checker = self.json_read()
         checker_list = checker[keyname]
         keyname_lth = len(checker_list)
@@ -171,7 +171,7 @@ class Main_app(tk.Tk):
         else:
             messagebox.showerror("error", "Max items reached")
 
-    def add_list(self, namelist):
+    def add_list(self, namelist: str):
         self.createlst_window.destroy()
         data = self.json_read()
         if len(data) <= 4:
