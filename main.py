@@ -21,7 +21,7 @@ class Main_app(tk.Tk):
         self.list_selected: str = "Please Select a list or make a new one"
 
         self.title("Plan and Execute")
-        self.geometry("500x500")
+        self.geometry("540x500")
 
         self.content_item = ttk.Frame(self.right_side)
         self.content_item.grid(column=1, row=2, rowspan=1000)
