@@ -168,7 +168,9 @@ class Main_app(tk.Tk):
             data[keyname].append(nameitem)
             self.json_write(data)
             self.print_item(keyname, "main")
-        else:
+        elif len(nameitem) == 0:
+            messagebox.showerror("error", "No item?")
+        elif keyname_lth >= 7:
             messagebox.showerror("error", "Max items reached")
 
     def add_list(self, namelist: str):
@@ -245,8 +247,10 @@ class Main_app(tk.Tk):
         self.content_list.grid_forget()
         self.content_list = ttk.Frame(self.utils)
         self.content_list.grid(column=0, row=2, rowspan=1000)
+        self.add_itembtn.destroy()
         self.print_list("main")
         self.list_selected = "Please Select a list or make a new one"
+        self.check_selected()
         self.del_object.destroy()
 
     def remove_object_item(self, list: str, item: int):
