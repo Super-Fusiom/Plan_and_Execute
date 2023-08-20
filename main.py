@@ -26,6 +26,9 @@ class Main_app(tk.Tk):
         self.content_item = ttk.Frame(self.right_side)
         self.content_item.grid(column=1, row=2, rowspan=1000)
 
+        self.add_itemfr = ttk.Frame(self.right_side)
+        self.add_itemfr.grid(column=1, row=1)
+
         self.utils = ttk.Frame(self)
         self.utils.grid(column=0, row=0)
 
@@ -52,7 +55,7 @@ class Main_app(tk.Tk):
     def check_selected(self):
         self.list_title["text"] = self.list_selected
         if self.list_selected != "Please Select a list or make a new one":
-            self.add_itembtn = ttk.Button(self.right_side, text="+")
+            self.add_itembtn = ttk.Button(self.add_itemfr, text="+")
             self.add_itembtn.grid(row=1, column=1)
             self.add_itembtn["command"] = self.create_item
 
@@ -247,15 +250,21 @@ class Main_app(tk.Tk):
         self.content_list.grid_forget()
         self.content_list = ttk.Frame(self.utils)
         self.content_list.grid(column=0, row=2, rowspan=1000)
-        self.add_itembtn.destroy()
-        self.print_list("main")
+
+        self.add_itemfr.destroy()
+        self.add_itemfr = ttk.Frame(self.right_side)
+        self.add_itemfr.grid(column=1, row=1)
+
+        self.content_item.destroy()
+        self.content_item = ttk.Frame(self.right_side)
+        self.content_item.grid(column=1, row=2, rowspan=1000)
         self.list_selected = "Please Select a list or make a new one"
+        self.print_list("main")
         self.check_selected()
         self.del_object.destroy()
 
     def remove_object_item(self, list: str, item: int):
         data = self.json_read()
-        print(item)
         list_item_del = data[list]
         del list_item_del[item]
 
